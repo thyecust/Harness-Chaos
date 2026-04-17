@@ -1,38 +1,57 @@
-# Principles of Chaos Engineering
+> https://github.com/chaos-eng/chaos-eng.github.io/blob/master/content/_index.en.md
 
-> Adapted from [principlesofchaos.org](https://principlesofchaos.org/)
+# PRINCIPLES OF CHAOS ENGINEERING
 
-Chaos Engineering is the discipline of experimenting on a system in order to build confidence in the system's capability to withstand turbulent conditions in production.
+*Chaos Engineering is the discipline of experimenting on a system in order to build confidence in the system's capability to withstand turbulent conditions in production.*
 
-## Core Concepts
+Advances in large-scale, distributed software systems are changing the game for software engineering.  As an industry, we are quick to adopt practices that increase flexibility of development and velocity of deployment.  An urgent question follows on the heels of these benefits: How much confidence we can have in the complex systems that we put into production?
 
-### Steady State
+Even when all of the individual services in a distributed system are functioning properly, the interactions between those services can cause unpredictable outcomes.  Unpredictable outcomes, compounded by rare but disruptive real-world events that affect production environments, make these distributed systems inherently chaotic.
 
-A *steady state* is some measurable output of a system that indicates normal behavior. The throughput, error rates, and latency percentiles could all be metrics of interest representing steady state. By focusing on systemic behavior patterns during experiments, Chaos validates that the system *does* work, rather than trying to validate *how* it works.
+We need to identify weaknesses before they manifest in system-wide, aberrant behaviors.  Systemic weaknesses could take the form of: improper fallback settings when a service is unavailable; retry storms from improperly tuned timeouts; outages when a downstream dependency receives too much traffic; cascading failures when a single point of failure crashes; etc.  We must address the most significant weaknesses proactively, before they affect our customers in production.  We need a way to manage the chaos inherent in these systems, take advantage of increasing flexibility and velocity, and have confidence in our production deployments despite the complexity that they represent.
 
-### Principles
+An empirical, systems-based approach addresses the chaos in distributed systems at scale and builds confidence in the ability of those systems to withstand realistic conditions.  We learn about the behavior of a distributed system by observing it during a controlled experiment.  We call this *Chaos Engineering*.
 
-**1. Build a Hypothesis Around Steady State Behavior**
+## CHAOS IN PRACTICE
 
-Focus on the measurable output of a system, rather than internal attributes of the system. Measurements of that output over a short period of time constitute a proxy for the system's steady state. The overall system's throughput, error rates, latency percentiles, etc. could all be metrics of interest representing steady state behavior. By focusing on systemic behavior patterns during experiments, Chaos Engineering validates that the system works, rather than trying to validate how it works.
+To specifically address the uncertainty of distributed systems at scale, Chaos Engineering can be thought of as the facilitation of experiments to uncover systemic weaknesses.  These experiments follow four steps:
 
-**2. Vary Real-World Events**
+1. Start by defining 'steady state' as some measurable output of a system that indicates normal behavior.
+2. Hypothesize that this steady state will continue in both the control group and the experimental group.
+3. Introduce variables that reflect real world events like servers that crash, hard drives that malfunction, network connections that are severed, etc.
+4. Try to disprove the hypothesis by looking for a difference in steady state between the control group and the experimental group.
 
-Chaos variables reflect real-world events. Prioritize events either by potential impact or estimated frequency. Consider events that correspond to hardware failures like servers dying, software failures like malformed responses, and non-failure events like a spike in traffic or a scaling event. Any event capable of disrupting steady state is a potential variable in a Chaos experiment.
+The harder it is to disrupt the steady state, the more confidence we have in the behavior of the system.  If a weakness is uncovered, we now have a target for improvement before that behavior manifests in the system at large.
 
-**3. Run Experiments in Production**
+## ADVANCED PRINCIPLES
 
-Systems behave differently depending on environment and traffic patterns. Since the behavior of utilization can only be reliably sampled from actual traffic, Chaos strongly prefers to experiment directly on production traffic. However, for AI coding agents, experiments may be run in staging environments that closely mirror production configurations.
+The following principles describe an ideal application of Chaos Engineering, applied to the processes of experimentation described above.  The degree to which these principles are pursued strongly correlates to the confidence we can have in a distributed system at scale.
 
-**4. Automate Experiments to Run Continuously**
+### Build a Hypothesis around Steady State Behavior
 
-Running experiments manually is labor-intensive and ultimately unsustainable. Automate experiments and run them continuously. Chaos Engineering builds automation into the system to drive both orchestration and analysis.
+Focus on the measurable output of a system, rather than internal attributes of the system.  Measurements of that output over a short period of time constitute a proxy for the system's steady state.  The overall system's throughput, error rates, latency percentiles, etc. could all be metrics of interest representing steady state behavior.  By focusing on systemic behavior patterns during experiments, Chaos verifies that the system does work, rather than trying to validate how it works.
 
-**5. Minimize Blast Radius**
+### Vary Real-world Events
 
-Experimenting in production has the potential to cause unnecessary customer pain. While there must be an allowance for some short-term negative impact, it is the responsibility and obligation of the Chaos Engineer to ensure the fallout from experiments is minimized and contained.
+Chaos variables reflect real-world events.  Prioritize events either by potential impact or estimated frequency.  Consider events that correspond to hardware failures like servers dying, software failures like malformed responses, and non-failure events like a spike in traffic or a scaling event.  Any event capable of disrupting steady state is a potential variable in a Chaos experiment.
 
-## Weaknesses to Uncover
+### Run Experiments in Production
+
+Systems behave differently depending on environment and traffic patterns.  Since the behavior of utilization can change at any time, sampling real traffic is the only way to reliably capture the request path.  To guarantee both authenticity of the way in which the system is exercised and relevance to the current deployed system, Chaos strongly prefers to experiment directly on production traffic.
+
+### Automate Experiments to Run Continuously
+
+Running experiments manually is labor-intensive and ultimately unsustainable.  Automate experiments and run them continuously.  Chaos Engineering builds automation into the system to drive both orchestration and analysis.
+
+### Minimize Blast Radius
+
+Experimenting in production has the potential to cause unnecessary customer pain. While there must be an allowance for some short-term negative impact, it is the responsibility and obligation of the Chaos Engineer to ensure the fallout from experiments are minimized and contained.
+
+Chaos Engineering is a powerful practice that is already changing how software is designed and engineered at some of the largest-scale operations in the world.  Where other practices address velocity and flexibility, Chaos specifically tackles systemic uncertainty in these distributed systems.  The Principles of Chaos provide confidence to innovate quickly at massive scales and give customers the high quality experiences they deserve.
+
+---
+
+## Application to AI Coding Agent Projects
 
 The following classes of systemic weaknesses are of primary interest for AI coding agent projects:
 
@@ -43,19 +62,7 @@ The following classes of systemic weaknesses are of primary interest for AI codi
 | 3 | **Memory leaks** | Long-running agent sessions accumulating memory without releasing it, eventually causing OOM crashes | Resident set size grows unbounded over a multi-hour session |
 | 4 | **Data races** | Concurrent access to shared state (e.g., SQLite databases) by multiple agent instances causing corruption or unexpected behavior | Duplicate entries, lost updates, or constraint violations |
 
-## Experiment Methodology
-
-### Steps
-
-1. **Define steady state** — identify measurable outputs (response latency, error rate, task completion rate, memory usage) that characterize normal operation.
-2. **Form a hypothesis** — state what you expect to remain true under a specific turbulent condition (e.g., "the agent will gracefully retry after a transient 503").
-3. **Design the experiment** — choose one real-world variable to inject (network partition, slow disk, API rate-limit response, process kill, etc.).
-4. **Run control and experimental groups** — establish a baseline with no fault injection, then re-run with the fault injected.
-5. **Measure and compare** — collect metrics from both groups and compare them against the steady-state definition.
-6. **Confirm or refute the hypothesis** — document whether the system maintained steady state; if not, record the failure mode.
-7. **Fix and retest** — file a GitHub issue, develop a fix, and re-run the experiment to confirm remediation.
-
-### Tooling
+## Experiment Tooling
 
 - **Fault injection**: `tc netem` (network latency/loss), `iptables` (connectivity drops), `stress-ng` (CPU/memory pressure), mock servers returning error codes.
 - **Metrics collection**: process memory (`/proc/<pid>/status`), HTTP response codes and timings, log analysis.
@@ -63,7 +70,7 @@ The following classes of systemic weaknesses are of primary interest for AI codi
 
 ## Database Schema
 
-Each weakness entry in the database records:
+Each weakness entry in the [database](./database.md) records:
 
 | Field | Description |
 |-------|-------------|
