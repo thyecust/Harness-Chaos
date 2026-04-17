@@ -66,15 +66,15 @@ This database records systemic weaknesses discovered through chaos engineering e
 |-------|-------|
 | **ID** | CHE-004 |
 | **Project** | [OpenCode](https://github.com/anomalyco/opencode) |
-| **Weakness class** | Data race between databases of multiple instances |
-| **Manifestation** | When two OpenCode instances share the same SQLite database (e.g., in a mono-repo with multiple terminal windows), concurrent writes cause duplicate entries, lost updates, or UNIQUE constraint violations |
-| **Impact scope** | Power users running multiple agent sessions concurrently in the same project; data integrity of the session history database |
-| **Dependency versions** | opencode ≤ commit at time of issue filing |
+| **Weakness class** | SQLite corruption from concurrent host + Docker access |
+| **Manifestation** | When OpenCode runs concurrently on the host and inside Docker containers sharing the database via volume mounts, SQLite's WAL file-locking breaks across the filesystem boundary, causing `SQLITE_NOTADB`, `SQLITE_CORRUPT` errors, and permanent database corruption (malformed B-tree pages, broken indexes) |
+| **Impact scope** | Users running OpenCode locally and in Docker while sharing `~/.local/share/opencode/`; permanent loss of all session history and data |
+| **Dependency versions** | opencode v1.4.7 |
 | **Experiment steps** | See [experiments/CHE-004-opencode-data-race.md](./experiments/CHE-004-opencode-data-race.md) |
-| **Experiment result** | Steady state **broken** — constraint violation errors observed within seconds of concurrent startup |
+| **Experiment result** | Steady state **broken** — local-only concurrency is safe (10+ instances, zero errors); local + Docker concurrency causes permanent `SQLITE_CORRUPT: database disk image is malformed` within seconds |
 | **GitHub issue** | https://github.com/anomalyco/opencode/issues/14194 |
 | **Fix MR** | — |
-| **Status** | `open` — **not reproduced** |
+| **Status** | `open` — **reproduced** |
 
 ---
 
@@ -85,7 +85,7 @@ This database records systemic weaknesses discovered through chaos engineering e
 | CHE-001 | OpenCode | Session poisoning from invalid image data | **reproduced** |
 | CHE-002 | OpenCode | Retry storm / improper timeout | not reproduced |
 | CHE-003 | OpenCode | Memory leak | not reproduced |
-| CHE-004 | OpenCode | Data race (multi-instance DB) | not reproduced |
+| CHE-004 | OpenCode | SQLite corruption (host + Docker) | **reproduced** |
 
 ---
 
