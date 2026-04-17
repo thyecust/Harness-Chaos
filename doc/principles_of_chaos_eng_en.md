@@ -2,7 +2,7 @@
 
 # PRINCIPLES OF CHAOS ENGINEERING
 
-*Chaos Engineering is the discipline of experimenting on a system in order to build confidence in the system’s capability to withstand turbulent conditions in production.*
+*Chaos Engineering is the discipline of experimenting on a system in order to build confidence in the system's capability to withstand turbulent conditions in production.*
 
 Advances in large-scale, distributed software systems are changing the game for software engineering.  As an industry, we are quick to adopt practices that increase flexibility of development and velocity of deployment.  An urgent question follows on the heels of these benefits: How much confidence we can have in the complex systems that we put into production?
 
@@ -16,7 +16,7 @@ An empirical, systems-based approach addresses the chaos in distributed systems 
 
 To specifically address the uncertainty of distributed systems at scale, Chaos Engineering can be thought of as the facilitation of experiments to uncover systemic weaknesses.  These experiments follow four steps:
 
-1. Start by defining ‘steady state’ as some measurable output of a system that indicates normal behavior.
+1. Start by defining 'steady state' as some measurable output of a system that indicates normal behavior.
 2. Hypothesize that this steady state will continue in both the control group and the experimental group.
 3. Introduce variables that reflect real world events like servers that crash, hard drives that malfunction, network connections that are severed, etc.
 4. Try to disprove the hypothesis by looking for a difference in steady state between the control group and the experimental group.
@@ -29,7 +29,7 @@ The following principles describe an ideal application of Chaos Engineering, app
 
 ### Build a Hypothesis around Steady State Behavior
 
-Focus on the measurable output of a system, rather than internal attributes of the system.  Measurements of that output over a short period of time constitute a proxy for the system’s steady state.  The overall system’s throughput, error rates, latency percentiles, etc. could all be metrics of interest representing steady state behavior.  By focusing on systemic behavior patterns during experiments, Chaos verifies that the system does work, rather than trying to validate how it works.
+Focus on the measurable output of a system, rather than internal attributes of the system.  Measurements of that output over a short period of time constitute a proxy for the system's steady state.  The overall system's throughput, error rates, latency percentiles, etc. could all be metrics of interest representing steady state behavior.  By focusing on systemic behavior patterns during experiments, Chaos verifies that the system does work, rather than trying to validate how it works.
 
 ### Vary Real-world Events
 
@@ -48,3 +48,40 @@ Running experiments manually is labor-intensive and ultimately unsustainable.  A
 Experimenting in production has the potential to cause unnecessary customer pain. While there must be an allowance for some short-term negative impact, it is the responsibility and obligation of the Chaos Engineer to ensure the fallout from experiments are minimized and contained.
 
 Chaos Engineering is a powerful practice that is already changing how software is designed and engineered at some of the largest-scale operations in the world.  Where other practices address velocity and flexibility, Chaos specifically tackles systemic uncertainty in these distributed systems.  The Principles of Chaos provide confidence to innovate quickly at massive scales and give customers the high quality experiences they deserve.
+
+---
+
+## Application to AI Coding Agent Projects
+
+The following classes of systemic weaknesses are of primary interest for AI coding agent projects:
+
+| # | Weakness | Description | Example Manifestation |
+|---|----------|-------------|----------------------|
+| 1 | **Service unavailability / cascading failure** | Lack of proper fallback when a dependent service (e.g., LLM API) is unavailable; single points of failure causing the agent to be unable to continue working | Agent hangs or crashes when API endpoint is unreachable |
+| 2 | **Retry storms** | Improper timeout settings causing repeated, rapid retries that amplify load during degraded conditions | `SSE read timed out` errors; exponential request surge |
+| 3 | **Memory leaks** | Long-running agent sessions accumulating memory without releasing it, eventually causing OOM crashes | Resident set size grows unbounded over a multi-hour session |
+| 4 | **Data races** | Concurrent access to shared state (e.g., SQLite databases) by multiple agent instances causing corruption or unexpected behavior | Duplicate entries, lost updates, or constraint violations |
+
+## Experiment Tooling
+
+- **Fault injection**: `tc netem` (network latency/loss), `iptables` (connectivity drops), `stress-ng` (CPU/memory pressure), mock servers returning error codes.
+- **Metrics collection**: process memory (`/proc/<pid>/status`), HTTP response codes and timings, log analysis.
+- **Automation**: shell scripts or Python harnesses driving the agent under test, with assertions against expected steady-state metrics.
+
+## Database Schema
+
+Each weakness entry in the [database](../database.md) records:
+
+| Field | Description |
+|-------|-------------|
+| `id` | Unique identifier |
+| `project` | Affected project and repository URL |
+| `weakness_class` | One of the four weakness classes above |
+| `manifestation` | Observable symptom |
+| `impact_scope` | Who is affected and how severely |
+| `dependency_versions` | Versions of relevant dependencies at time of discovery |
+| `experiment_steps` | Step-by-step reproduction procedure |
+| `experiment_result` | Outcome (steady state broken / maintained) |
+| `github_issue` | Link to the issue |
+| `fix_mr` | Link to the fix PR/MR (if available) |
+| `status` | `open` / `fixed` / `wont_fix` |

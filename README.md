@@ -35,3 +35,30 @@ Our goal is to maintain a database that includes:
 - Versions of related dependencies
 - Complete experiment steps and results
 - GitHub Issues and fix MRs
+
+## Repository Structure
+
+```
+database.md                       # Weakness database (all findings)
+experiments/
+  CHE-001-opencode-service-unavailability.md
+  CHE-002-opencode-retry-storm.md
+  CHE-003-opencode-memory-leak.md
+  CHE-004-opencode-data-race.md
+doc/
+  principles_of_chaos_eng_en.md   # Principles of Chaos Engineering (English)
+  principles_of_chaos_eng_zh.md   # Principles of Chaos Engineering (Chinese)
+README_zh.md                      # Chinese README
+```
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Principles of Chaos Engineering (EN)](./doc/principles_of_chaos_eng_en.md) | Core principles and methodology |
+| [Principles of Chaos Engineering (ZH)](./doc/principles_of_chaos_eng_zh.md) | 混沌工程原则（中文） |
+| [Weakness Database](./database.md) | All discovered weaknesses with scope, versions, and issue links |
+
+## Contributing
+
+See the [Contributing section](./database.md#contributing) in the database for instructions on adding new entries.
