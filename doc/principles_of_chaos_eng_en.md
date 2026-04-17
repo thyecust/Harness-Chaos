@@ -70,7 +70,7 @@ The following classes of systemic weaknesses are of primary interest for AI codi
 
 ## Database Schema
 
-Each weakness entry in the [database](./database.md) records:
+Each weakness entry in the [database](../database.md) records:
 
 | Field | Description |
 |-------|-------------|
